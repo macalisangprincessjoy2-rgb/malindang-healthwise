@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Assessments</title>
+    <style>
+        * { box-sizing:border-box; }
+        body { margin:0; background:#f7fbf9; color:#203947; font-family:Arial,sans-serif; }.page{max-width:1050px;margin:0 auto;padding:24px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}.topbar h1{margin:0;font-size:24px}.nav a,.action{color:#208d4c;text-decoration:none;font-weight:bold;font-size:13px;margin-left:12px}.panel{background:#fff;border:1px solid #e2eee8;border-radius:11px;padding:18px;overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:680px}th,td{text-align:left;padding:12px 9px;border-bottom:1px solid #e5eee9;font-size:12px;vertical-align:top}th{background:#f1faf4;color:#1f4d4d}.badge{display:inline-block;padding:5px 8px;border-radius:8px;background:#fff3d5;color:#c58a00;font-weight:bold;font-size:11px}.empty{color:#74837f}
+        @media(max-width:600px){.page{padding:16px 12px}.topbar{align-items:flex-start}.topbar h1{font-size:21px}.nav{display:flex;gap:8px}.nav a,.action{margin-left:0}.panel{padding:12px}th,td{padding:9px 7px}}
+    </style>
+</head>
+<body><main class="page"><header class="topbar"><h1>My Assessments</h1><nav><a href="{{ url_for('dashboard') }}">Dashboard</a><a href="{{ url_for('logout') }}">Logout</a></nav></header><div class="panel"><table><thead><tr><th>Date</th><th>Symptoms</th><th>Location</th><th>Risk</th><th>Priority</th><th>Action</th></tr></thead><tbody>{% for item in assessments %}<tr><td>{{ item.created_at }}</td><td>{{ item.symptom_summary or 'Wala pay sintomas nga gisulat' }}</td><td>{{ item.barangay }}, {{ item.municipality }}</td><td><span class="badge">{{ item.risk_level }}</span></td><td>{{ item.priority }}</td><td><a class="action" href="{{ url_for('assessment_detail', assessment_id=item.id) }}">View details</a></td></tr>{% else %}<tr><td colspan="6" class="empty">Wala pay assessment records.</td></tr>{% endfor %}</tbody></table></div></main></body>
+</html>
