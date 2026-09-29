@@ -400,10 +400,27 @@ def init_db(seed_defaults=True):
         if connection.execute('SELECT COUNT(*) FROM guidelines').fetchone()[0] == 0:
             connection.executemany('INSERT INTO guidelines (title, content) VALUES (?, ?)', DEFAULT_GUIDELINES)
         admin_password = os.environ.get('MALINDANG_ADMIN_PASSWORD')
-        if admin_password and connection.execute("SELECT 1 FROM users WHERE username = 'admin'").fetchone() is None:
+        admin_reset_password = os.environ.get('MALINDANG_ADMIN_RESET_PASSWORD')
+        admin_exists = connection.execute(
+            "SELECT 1 FROM users WHERE username = 'admin'"
+        ).fetchone() is not None
+        if admin_reset_password and admin_exists:
+            connection.execute(
+                "UPDATE users SET password_hash = ? WHERE username = 'admin'",
+                (hash_password(admin_reset_password),),
+            )
+            print(
+                'Admin password reset from MALINDANG_ADMIN_RESET_PASSWORD. '
+                'Remove this environment variable after the deployment succeeds.'
+            )
+        elif not admin_exists and (admin_password or admin_reset_password):
             connection.execute(
                 "INSERT INTO users (username, password_hash, full_name, role) VALUES (?, ?, ?, 'admin')",
-                ('admin', hash_password(admin_password), 'System Administrator'),
+                (
+                    'admin',
+                    hash_password(admin_reset_password or admin_password),
+                    'System Administrator',
+                ),
             )
     connection.commit()
 
@@ -823,6 +840,15 @@ def _spreadsheet_safe(value):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    return _handle_login()
+
+
+@app.route('/admin-login', methods=['GET', 'POST'])
+def admin_login():
+    return _handle_login(admin_only=True)
+
+
+def _handle_login(admin_only=False):
     global users
     users = load_users()
 
@@ -834,10 +860,15 @@ def login():
             return render_template(
                 'login.html',
                 error='Daghan na kaayo ka sayop nga pagsulay. Palihug hulat ug pipila ka minuto ug sulayi pag-usab.',
+                admin_login=admin_only,
             )
 
         user_data = users.get(username)
-        if user_data and check_password_hash(user_data['password'], password):
+        if (
+            user_data
+            and check_password_hash(user_data['password'], password)
+            and (not admin_only or user_data.get('role') == 'admin')
+        ):
             _clear_login_attempts(username)
             stored_hash = user_data['password']
             if not stored_hash.startswith(f'{PASSWORD_HASH_METHOD}$'):
@@ -854,13 +885,17 @@ def login():
             session['municipality'] = user_data.get('municipality', '')
             session['barangay'] = user_data.get('barangay', '')
             log_activity(username, 'login')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('admin_dashboard' if admin_only else 'dashboard'))
 
         if username:
             _record_failed_login(username)
-        return render_template('login.html', error='Sayop ang username o password.')
+        return render_template(
+            'login.html',
+            error='Sayop ang username o password.',
+            admin_login=admin_only,
+        )
 
-    return render_template('login.html')
+    return render_template('login.html', admin_login=admin_only)
 
 
 @app.route('/reset-password', methods=['GET', 'POST'])
@@ -1207,7 +1242,7 @@ def admin_dashboard():
 @app.route('/admin/survey/export')
 def export_survey_responses():
     if not admin_required():
-        return redirect(url_for('login'))
+        return redirect(url_for('admin_login'))
 
     connection = get_db_connection()
     responses = connection.execute(
@@ -1263,6 +1298,60 @@ def export_survey_responses():
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         as_attachment=True,
         download_name='malindang-questionnaire-responses.xlsx',
+    )
+
+
+@app.route('/admin/survey/responses')
+def view_survey_responses():
+    if not admin_required():
+        return redirect(url_for('admin_login'))
+
+    connection = get_db_connection()
+    responses = connection.execute(
+        'SELECT id, respondent_type, barangay, sex, age, comments, created_at '
+        'FROM questionnaire_responses ORDER BY id DESC'
+    ).fetchall()
+    answer_rows = connection.execute(
+        'SELECT response_id, question_code, rating FROM questionnaire_answers '
+        'ORDER BY response_id, question_code'
+    ).fetchall()
+    connection.close()
+
+    question_details = {
+        code: {'statement': statement, 'section': section}
+        for code, statement, section in QUESTIONNAIRE
+    }
+    answers_by_response = {}
+    for answer in answer_rows:
+        question = question_details[answer['question_code']]
+        answers_by_response.setdefault(answer['response_id'], []).append({
+            'statement': question['statement'],
+            'section': question['section'],
+            'rating': answer['rating'],
+            'rating_label': next(
+                label for value, label, _ in SCALE if value == answer['rating']
+            ),
+        })
+
+    respondent_type_labels = dict(RESPONDENT_TYPES)
+    questionnaire_responses = [
+        {
+            'id': response['id'],
+            'respondent_type': respondent_type_labels.get(
+                response['respondent_type'], response['respondent_type']
+            ),
+            'barangay': response['barangay'],
+            'sex': response['sex'],
+            'age': response['age'],
+            'comments': response['comments'],
+            'created_at': response['created_at'],
+            'answers': answers_by_response.get(response['id'], []),
+        }
+        for response in responses
+    ]
+    return render_template(
+        'survey_responses.html',
+        responses=questionnaire_responses,
     )
 
 

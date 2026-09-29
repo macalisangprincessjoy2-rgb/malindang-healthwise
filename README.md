@@ -99,7 +99,18 @@ $env:MALINDANG_ADMIN_PASSWORD="change-this-password"
 python app.py
 ```
 
-Log in using `admin` at `/login`; administrators will see the Admin Monitoring link on the dashboard.
+On the login page, choose **Admin login** and sign in with username `admin` and
+the password set in `MALINDANG_ADMIN_PASSWORD`. The admin dashboard includes
+**View submitted questionnaires** to inspect each response and its ratings, and
+**Download Excel responses** to export them. On a hosted deployment, configure
+a persistent MySQL `DATABASE_URL` so submissions remain available after
+restarts and redeploys.
+
+To reset an existing administrator password, temporarily set
+`MALINDANG_ADMIN_RESET_PASSWORD` in the hosting provider's environment settings.
+The app applies it to the `admin` account during startup. After the deployment
+succeeds, remove that variable immediately; while it remains set, each restart
+resets the password again.
 
 ## Database configuration
 

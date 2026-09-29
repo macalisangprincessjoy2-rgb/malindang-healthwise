@@ -203,7 +203,7 @@ def test_consented_questionnaire_submission_is_saved_for_admin_export():
 
     denied_export = client.get('/admin/survey/export', follow_redirects=False)
     assert denied_export.status_code in (301, 302)
-    assert '/login' in denied_export.headers.get('Location', '')
+    assert denied_export.headers.get('Location', '').endswith('/admin-login')
 
     with client.session_transaction() as stored_session:
         stored_session['username'] = 'research-admin'
@@ -289,6 +289,106 @@ def test_admin_routes_reject_non_admin_users():
     retrain = client.post('/admin/retrain', follow_redirects=False)
     assert retrain.status_code in (301, 302)
     assert '/login' in retrain.headers.get('Location', '')
+
+
+def test_admin_login_button_and_admin_only_authentication():
+    from app import hash_password
+
+    client = app.test_client()
+    login_page = client.get('/login')
+    assert b'href="/admin-login"' in login_page.data
+
+    admin_login_page = client.get('/admin-login')
+    assert b'Admin login' in admin_login_page.data
+    assert b'action="/admin-login"' in admin_login_page.data
+
+    client.post('/register', data={
+        'full_name': 'Admin Login Resident', 'age': '40',
+        'username': 'adminloginresident', 'municipality': 'Tangub City',
+        'barangay': 'Owayan', 'address': 'Purok 1',
+        'password': 'residentpass1', 'confirm_password': 'residentpass1',
+    })
+    resident_attempt = client.post('/admin-login', data={
+        'username': 'adminloginresident', 'password': 'residentpass1',
+    })
+    assert b'Sayop ang username o password' in resident_attempt.data
+
+    connection = get_db_connection()
+    connection.execute(
+        'INSERT INTO users (username, password_hash, full_name, role) VALUES (?, ?, ?, ?)',
+        ('adminlogintest', hash_password('adminpass123'), 'Test Administrator', 'admin'),
+    )
+    connection.commit()
+    connection.close()
+
+    admin_attempt = client.post('/admin-login', data={
+        'username': 'adminlogintest', 'password': 'adminpass123',
+    }, follow_redirects=False)
+    assert admin_attempt.status_code in (301, 302)
+    assert admin_attempt.headers['Location'].endswith('/admin')
+
+
+def test_admin_password_can_be_reset_with_temporary_environment_variable(monkeypatch):
+    from app import hash_password, init_db
+    from werkzeug.security import check_password_hash
+
+    connection = get_db_connection()
+    connection.execute(
+        'INSERT INTO users (username, password_hash, full_name, role) VALUES (?, ?, ?, ?)',
+        ('admin', hash_password('old-admin-password'), 'System Administrator', 'admin'),
+    )
+    connection.commit()
+    connection.close()
+    monkeypatch.delenv('MALINDANG_ADMIN_PASSWORD', raising=False)
+    monkeypatch.setenv('MALINDANG_ADMIN_RESET_PASSWORD', 'new-admin-password')
+
+    init_db()
+
+    connection = get_db_connection()
+    stored_hash = connection.execute(
+        "SELECT password_hash FROM users WHERE username = 'admin'"
+    ).fetchone()['password_hash']
+    connection.close()
+    assert check_password_hash(stored_hash, 'new-admin-password')
+    assert not check_password_hash(stored_hash, 'old-admin-password')
+
+
+def test_admin_can_view_submitted_questionnaire_answers():
+    from app import hash_password
+
+    connection = get_db_connection()
+    connection.execute(
+        'INSERT INTO users (username, password_hash, full_name, role) VALUES (?, ?, ?, ?)',
+        ('surveyvieweradmin', hash_password('adminpass123'), 'Survey Viewer', 'admin'),
+    )
+    cursor = connection.execute(
+        'INSERT INTO questionnaire_responses '
+        '(respondent_type, barangay, sex, age, comments, consent_version) '
+        'VALUES (?, ?, ?, ?, ?, ?)',
+        ('resident', 'Owayan', 'Female', 29, 'Helpful and clear.', '2026-09-v1'),
+    )
+    connection.execute(
+        'INSERT INTO questionnaire_answers (response_id, question_code, rating) VALUES (?, ?, ?)',
+        (cursor.lastrowid, 'U1', 5),
+    )
+    connection.commit()
+    connection.close()
+
+    client = app.test_client()
+    anonymous_response = client.get('/admin/survey/responses', follow_redirects=False)
+    assert anonymous_response.status_code in (301, 302)
+    assert anonymous_response.headers['Location'].endswith('/admin-login')
+
+    client.post('/admin-login', data={
+        'username': 'surveyvieweradmin', 'password': 'adminpass123',
+    })
+    response_page = client.get('/admin/survey/responses')
+
+    assert response_page.status_code == 200
+    assert b'Submitted Questionnaires' in response_page.data
+    assert b'Helpful and clear.' in response_page.data
+    assert b'The system is easy to navigate and use.' in response_page.data
+    assert b'5 / 5' in response_page.data
 
 
 def test_login_locks_out_after_repeated_failures():

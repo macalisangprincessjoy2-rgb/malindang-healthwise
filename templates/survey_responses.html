@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submitted Questionnaires | Mount Malindang HealthWise</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #edf6f1; color: #1d2a2b; }
+        .page { max-width: 1180px; margin: 28px auto; padding: 20px; }
+        .topbar, .response { background: white; border: 1px solid #e1ece7; border-radius: 12px; box-shadow: 0 8px 22px rgba(0,0,0,.06); padding: 20px; margin-bottom: 18px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        h1, h2, h3 { color: #1f4d4d; }
+        h1 { margin: 0 0 6px; }
+        h2 { margin-top: 0; }
+        h3 { font-size: 16px; margin-bottom: 8px; }
+        a { display: inline-block; padding: 10px 14px; border-radius: 7px; background: #2a7f62; color: white; text-decoration: none; font-weight: bold; }
+        .muted { color: #5f7373; font-size: 14px; }
+        .response summary { color: #1f4d4d; cursor: pointer; font-weight: bold; }
+        .response details[open] summary { margin-bottom: 18px; }
+        .metadata { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }
+        .metadata div { padding: 12px; border-radius: 8px; background: #f2faf5; }
+        .metadata strong { display: block; margin-bottom: 5px; color: #1f4d4d; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; min-width: 560px; border-collapse: collapse; margin-bottom: 18px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e3ece7; vertical-align: top; }
+        th { color: #1f4d4d; background: #f2faf5; }
+        .comment { white-space: pre-wrap; overflow-wrap: anywhere; }
+        @media (max-width: 600px) {
+            .page { margin: 12px auto; padding: 12px; }
+            .topbar, .response { padding: 15px; }
+            .topbar h1 { font-size: 22px; }
+            .topbar > div:last-child { display: flex; gap: 8px; flex-wrap: wrap; }
+            .topbar a { padding: 9px 10px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <header class="topbar">
+            <div>
+                <h1>Submitted Questionnaires</h1>
+                <div class="muted">{{ responses|length }} submitted response{% if responses|length != 1 %}s{% endif %}</div>
+            </div>
+            <div>
+                <a href="{{ url_for('admin_dashboard') }}">Admin dashboard</a>
+                <a href="{{ url_for('export_survey_responses') }}">Download Excel</a>
+            </div>
+        </header>
+        {% for response in responses %}
+        <section class="response">
+            <details>
+                <summary>Response #{{ response.id }} &mdash; {{ response.respondent_type }} &mdash; {{ response.barangay }} &mdash; {{ response.created_at }}</summary>
+                <div class="metadata">
+                    <div><strong>Respondent group</strong>{{ response.respondent_type }}</div>
+                    <div><strong>Barangay / location</strong>{{ response.barangay }}</div>
+                    <div><strong>Sex</strong>{{ response.sex }}</div>
+                    <div><strong>Age</strong>{{ response.age if response.age is not none else 'Not provided' }}</div>
+                </div>
+                {% for section, answers in response.answers|groupby('section') %}
+                <h3>{{ section }}</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Question</th><th>Rating</th></tr></thead>
+                        <tbody>
+                            {% for answer in answers %}
+                            <tr><td>{{ answer.statement }}</td><td>{{ answer.rating }} / 5 &mdash; {{ answer.rating_label }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="muted">No question ratings were saved for this response.</p>
+                {% endfor %}
+                <h3>Optional comments</h3>
+                <p class="comment">{{ response.comments or 'No comment provided.' }}</p>
+            </details>
+        </section>
+        {% else %}
+        <section class="response">
+            <h2>No questionnaire responses yet</h2>
+            <p class="muted">Submitted responses will appear here after respondents complete and submit the questionnaire.</p>
+        </section>
+        {% endfor %}
+    </main>
+</body>
+</html>

@@ -34,6 +34,8 @@
         .forgot { display: block; text-align: right; color: #2a7f62; font-size: 13px; text-decoration: none; }
         .link { margin-top: 16px; text-align: center; font-size: 14px; }
         .link a { color: #1d6d4d; text-decoration: none; font-weight: bold; }
+        .admin-entry { margin-top: 24px; text-align: center; }
+        .admin-entry a { display: inline-block; padding: 10px 16px; border: 1px solid #2a7f62; border-radius: 9px; color: #1d6d4d; text-decoration: none; font-weight: bold; }
         @media (max-width: 680px) { body { padding: 0; } .card { display: block; width: 100%; min-height: 100vh; border-radius: 0; } .welcome-panel { padding: 28px 22px; } .welcome-illustration { max-height: 190px; } .form-panel { padding: 0 22px 28px; } .tabs { margin-left: -22px; margin-right: -22px; } }
     </style>
 </head>
@@ -48,16 +50,21 @@
         </section>
         <section class="form-panel">
             <div class="tabs"><a class="active" href="/login" aria-label="Login">&#8594;&nbsp; Pag-login</a><a href="/register">&#10010;&nbsp; Pag-register</a></div>
-            <h2>Pag-login sa imong account</h2>
-            <p class="intro">Ibutang ang imong username ug password sa ubos.</p>
+            <h2>{% if admin_login %}Admin login{% else %}Pag-login sa imong account{% endif %}</h2>
+            <p class="intro">{% if admin_login %}Sign in with the admin username and password.{% else %}Ibutang ang imong username ug password sa ubos.{% endif %}</p>
             {% if error %}<p style="color:#b22222; font-weight:bold;">{{ error }}</p>{% endif %}
-            <form method="POST" action="/login">
-                <div class="field"><label for="username">Username</label><input id="username" type="text" name="username" placeholder="Isulod ang imong username" required></div>
+            <form method="POST" action="{{ url_for('admin_login' if admin_login else 'login') }}">
+                <div class="field"><label for="username">Username</label><input id="username" type="text" name="username" placeholder="{% if admin_login %}admin{% else %}Isulod ang imong username{% endif %}" required></div>
                 <div class="field"><label for="password">Password</label><div class="password-wrap"><input id="password" type="password" name="password" placeholder="Isulod ang imong password" required><button type="button" class="toggle-password" aria-label="Ipakita ang password">&#128065;</button></div></div>
-                <a class="forgot" href="/reset-password">Nakalimtan ang password?</a>
-                <button type="submit">&#10132;&nbsp; Pag-login</button>
+                {% if not admin_login %}<a class="forgot" href="/reset-password">Nakalimtan ang password?</a>{% endif %}
+                <button type="submit">&#10132;&nbsp; {% if admin_login %}Admin sign in{% else %}Pag-login{% endif %}</button>
             </form>
+            {% if admin_login %}
+            <div class="link"><a href="{{ url_for('login') }}">Back to regular login</a></div>
+            {% else %}
             <div class="link">Wala pay account? <a href="/register">Pag-register dinhi</a></div>
+            <div class="admin-entry"><a href="{{ url_for('admin_login') }}">Admin login</a></div>
+            {% endif %}
             <div class="link"><a href="{{ url_for('research_survey') }}">Take the research questionnaire</a></div>
         </section>
     </div>
