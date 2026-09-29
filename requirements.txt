@@ -1,0 +1,6 @@
+Flask==3.0.3
+pytest==8.3.2
+scikit-learn==1.5.2
+gunicorn==23.0.0; platform_system != "Windows"
+PyMySQL==1.1.1
+openpyxl==3.1.5

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: malindang-healthwise
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: MALINDANG_ADMIN_PASSWORD
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
