@@ -1,9 +1,2 @@
-health_app.db
-*.pkl
-__pycache__/
-.pytest_cache/
-.venv/
-users.json
-.env
-.env.*
-!.env.example
+# Created by pytest automatically.
+*
