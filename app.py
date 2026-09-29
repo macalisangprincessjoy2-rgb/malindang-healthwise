@@ -708,6 +708,29 @@ def admin_required():
     return session.get('role') == 'admin'
 
 
+@app.before_request
+def restrict_admin_to_research_monitoring():
+    if not admin_required():
+        return None
+
+    allowed_paths = {
+        '/',
+        '/admin',
+        '/admin-login',
+        '/admin/survey/export',
+        '/admin/survey/responses',
+        '/logout',
+        '/offline.html',
+        '/service-worker.js',
+    }
+    if request.path in allowed_paths or request.path.startswith('/static/'):
+        return None
+
+    if request.path.startswith('/api/'):
+        return jsonify({'error': 'Administrators can only access research survey monitoring.'}), 403
+    return redirect(url_for('admin_dashboard'))
+
+
 init_db(seed_defaults=os.environ.get('MALINDANG_SKIP_DB_SEED') != '1')
 users = load_users()
 
@@ -715,6 +738,8 @@ users = load_users()
 @app.route('/')
 def index():
     if 'username' in session:
+        if admin_required():
+            return redirect(url_for('admin_dashboard'))
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
@@ -980,6 +1005,8 @@ def logout():
 def dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
+    if admin_required():
+        return redirect(url_for('admin_dashboard'))
     own_records = load_records(username=session['username'])
     records = own_records[:5]
     facilities, guidelines = load_reference_data()
@@ -1174,13 +1201,8 @@ def referral_detail(assessment_id):
 @app.route('/admin')
 def admin_dashboard():
     if not admin_required():
-        return redirect(url_for('login'))
+        return redirect(url_for('admin_login'))
     connection = get_db_connection()
-    users_count = connection.execute('SELECT COUNT(*) FROM users').fetchone()[0]
-    assessments_count = connection.execute('SELECT COUNT(*) FROM assessments').fetchone()[0]
-    logs = connection.execute('SELECT username, action, details, created_at FROM activity_logs ORDER BY id DESC LIMIT 20').fetchall()
-    facilities = connection.execute('SELECT name, municipality, barangay, description FROM facilities ORDER BY municipality, barangay').fetchall()
-    guidelines = connection.execute('SELECT title, content FROM guidelines ORDER BY id').fetchall()
     respondent_count = connection.execute(
         'SELECT COUNT(*) FROM questionnaire_responses'
     ).fetchone()[0]
@@ -1220,16 +1242,8 @@ def admin_dashboard():
         }
         for row in respondent_groups
     ]
-    ml_metrics = evaluate_model()
     return render_template(
         'admin.html',
-        username=session['username'],
-        users_count=users_count,
-        assessments_count=assessments_count,
-        logs=logs,
-        facilities=facilities,
-        guidelines=guidelines,
-        ml_metrics=ml_metrics,
         respondent_count=respondent_count,
         respondent_goal=RESPONDENT_GOAL,
         respondent_remaining=max(0, RESPONDENT_GOAL - respondent_count),

@@ -284,11 +284,11 @@ def test_admin_routes_reject_non_admin_users():
 
     admin_page = client.get('/admin', follow_redirects=False)
     assert admin_page.status_code in (301, 302)
-    assert '/login' in admin_page.headers.get('Location', '')
+    assert admin_page.headers.get('Location', '').endswith('/admin-login')
 
     retrain = client.post('/admin/retrain', follow_redirects=False)
     assert retrain.status_code in (301, 302)
-    assert '/login' in retrain.headers.get('Location', '')
+    assert retrain.headers.get('Location', '').endswith('/login')
 
 
 def test_admin_login_button_and_admin_only_authentication():
@@ -389,6 +389,35 @@ def test_admin_can_view_submitted_questionnaire_answers():
     assert b'Helpful and clear.' in response_page.data
     assert b'The system is easy to navigate and use.' in response_page.data
     assert b'5 / 5' in response_page.data
+
+
+def test_admin_is_limited_to_research_survey_monitoring():
+    client = app.test_client()
+    with client.session_transaction() as stored_session:
+        stored_session['username'] = 'survey-only-admin'
+        stored_session['role'] = 'admin'
+
+    dashboard = client.get('/admin')
+    assert dashboard.status_code == 200
+    assert b'Research Survey Monitoring' in dashboard.data
+    assert b'Facility management' not in dashboard.data
+    assert b'ML classifier' not in dashboard.data
+    assert b'Recent monitoring logs' not in dashboard.data
+
+    user_dashboard = client.get('/dashboard', follow_redirects=False)
+    assert user_dashboard.status_code in (301, 302)
+    assert user_dashboard.headers['Location'].endswith('/admin')
+
+    regular_login = client.get('/login', follow_redirects=False)
+    assert regular_login.status_code in (301, 302)
+    assert regular_login.headers['Location'].endswith('/admin')
+
+    assessment_api = client.get('/api/dashboard')
+    assert assessment_api.status_code == 403
+
+    restricted_action = client.post('/admin/retrain', follow_redirects=False)
+    assert restricted_action.status_code in (301, 302)
+    assert restricted_action.headers['Location'].endswith('/admin')
 
 
 def test_login_locks_out_after_repeated_failures():

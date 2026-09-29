@@ -106,6 +106,10 @@ the password set in `MALINDANG_ADMIN_PASSWORD`. The admin dashboard includes
 a persistent MySQL `DATABASE_URL` so submissions remain available after
 restarts and redeploys.
 
+Administrator accounts are limited to research questionnaire monitoring.
+Residents should register or sign in with regular accounts to use the health
+assessment, history, and referral features.
+
 To reset an existing administrator password, temporarily set
 `MALINDANG_ADMIN_RESET_PASSWORD` in the hosting provider's environment settings.
 The app applies it to the `admin` account during startup. After the deployment
