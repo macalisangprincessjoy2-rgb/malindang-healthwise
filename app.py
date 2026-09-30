@@ -772,6 +772,7 @@ def render_questionnaire(error=None, form_data=None, submitted=False):
         question_sections=QUESTION_SECTIONS,
         scale=SCALE,
         respondent_types=RESPONDENT_TYPES,
+        barangays_by_municipality=BARANGAYS_BY_MUNICIPALITY,
         sex_options=SEX_OPTIONS,
         csrf_token=csrf_token,
     )
@@ -798,11 +799,16 @@ def research_survey():
     age_text = form_data.get('age', '').strip()
     comments = form_data.get('comments', '').strip()
     allowed_types = {value for value, _ in RESPONDENT_TYPES}
+    allowed_barangays = {
+        barangay
+        for barangays in BARANGAYS_BY_MUNICIPALITY.values()
+        for barangay in barangays
+    }
 
     if respondent_type not in allowed_types:
         return render_questionnaire('Palihog pilia ang matang sa motubag.', form_data), 400
-    if not barangay or len(barangay) > 150:
-        return render_questionnaire('Isulod ang barangay o dapit (kutob sa 150 ka karakter).', form_data), 400
+    if barangay not in allowed_barangays:
+        return render_questionnaire('Palihog pilia ang imong barangay gikan sa listahan.', form_data), 400
     if sex not in SEX_OPTIONS:
         return render_questionnaire('Palihog pilia ang lalaki o babaye.', form_data), 400
     if age_text:

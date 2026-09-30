@@ -158,6 +158,9 @@ def test_research_questionnaire_requires_consent_and_all_ratings():
     assert b'Propesyonal sa Panglawas' in survey_page.data
     assert b'Sayon gamiton ug sundon ang mga lakang niini nga sistema.' in survey_page.data
     assert b'Isumiter ang mga Tubag' in survey_page.data
+    assert b'<select id="barangay" name="barangay" required>' in survey_page.data
+    assert b'<option value="Lake Duminagat"' in survey_page.data
+    assert b'<option value="Owayan"' in survey_page.data
     assert b'answer_U1' in survey_page.data
     assert b'answer_C8' in survey_page.data
 
@@ -172,6 +175,11 @@ def test_research_questionnaire_requires_consent_and_all_ratings():
     rejected = client.post('/survey', data=missing_answer)
     assert rejected.status_code == 400
     assert b'Tubaga ang matag pahayag' in rejected.data
+
+    invalid_barangay = _valid_questionnaire_payload(client, barangay='Wala sa listahan')
+    rejected = client.post('/survey', data=invalid_barangay)
+    assert rejected.status_code == 400
+    assert b'Palihog pilia ang imong barangay gikan sa listahan' in rejected.data
 
     connection = get_db_connection()
     assert connection.execute('SELECT COUNT(*) FROM questionnaire_responses').fetchone()[0] == 0

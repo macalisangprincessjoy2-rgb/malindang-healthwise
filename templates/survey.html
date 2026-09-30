@@ -93,7 +93,16 @@
                 </div>
                 <div class="field">
                     <label for="barangay">Barangay / Dapit</label>
-                    <input id="barangay" name="barangay" type="text" maxlength="150" required value="{{ form_data.get('barangay', '') }}" placeholder="Isulod ang barangay o komunidad">
+                    <select id="barangay" name="barangay" required>
+                        <option value="">Pilia ang imong barangay</option>
+                        {% for municipality, barangays in barangays_by_municipality.items() %}
+                        <optgroup label="{{ municipality }}">
+                            {% for barangay_option in barangays %}
+                            <option value="{{ barangay_option }}" {% if form_data.get('barangay') == barangay_option %}selected{% endif %}>{{ barangay_option }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="field">
                     <label for="sex">Sekso</label>
