@@ -23,6 +23,7 @@ The system supports preliminary screening of common local symptoms and generates
 - Offline app-shell caching, account-scoped IndexedDB assessment queue, and automatic synchronization while the app is open
 - Password reset, hospital lookup proxy, persisted ML model, and admin retraining
 - Web interface using Flask
+- Resident dashboard, navigation, assessment history, result, and referral guidance in Cebuano (Binisaya)
 
 ## System architecture
 
@@ -67,9 +68,12 @@ identifier. Only real submitted responses count toward the 386-person target;
 the application does not generate respondents. An administrator can review
 group totals and section means and download responses from the admin dashboard.
 The respondent-facing questionnaire, prompts, ratings, consent text, and
-validation messages are presented in Cebuano (Binisaya). Follow institutional
-ethics approval, consent, data access, and retention requirements before
-collecting or analyzing responses.
+validation messages are presented in Cebuano (Binisaya). The resident
+dashboard, navigation, assessment history and results, and referral guidance
+are also presented in Cebuano; stored risk values, rule outputs, and facility
+names remain unchanged for compatibility and traceability. Follow
+institutional ethics approval, consent, data access, and retention
+requirements before collecting or analyzing responses.
 
 ## Run locally
 

@@ -24,6 +24,22 @@ def test_risk_level_uses_severity():
     assert health_risk_level(6) == "High"
 
 
+def test_bisaya_display_labels_do_not_change_stored_assessment_values():
+    from bisaya import bisaya_text
+
+    assert bisaya_text('Low') == 'Ubos'
+    assert bisaya_text('Emergency referral to nearest hospital or clinic').startswith(
+        'Dayon nga pangayo og tabang'
+    )
+    assert bisaya_text('Fever') == 'Hilanat'
+    assert bisaya_text('Owayan Barangay Health Station') == (
+        'Istasyon sa Panglawas sa Barangay Owayan'
+    )
+    assert bisaya_text('A facility name not in the translation list') == (
+        'A facility name not in the translation list'
+    )
+
+
 def test_referral_priority_matches_alertness():
     assert referral_priority("Severe dehydration") == "Immediate referral"
     assert referral_priority("Routine follow-up") == "Scheduled visit"
@@ -71,13 +87,16 @@ def test_community_primary_health_concerns_are_available_on_dashboard():
     dashboard = client.get('/dashboard')
 
     assert dashboard.status_code == 200
-    assert 'Community-Reported Primary Health Concerns'.encode() in dashboard.data
+    assert 'Mga Pangunang Kabalaka sa Panglawas nga Gireport sa Komunidad'.encode() in dashboard.data
     assert 'samad sa yuta'.encode() in dashboard.data
-    assert 'Occupational injury'.encode() in dashboard.data
-    assert 'not diagnoses'.encode() in dashboard.data
-    assert b'Nearest configured healthcare referral' in dashboard.data
+    assert 'Samad tungod sa trabaho'.encode() in dashboard.data
+    assert 'Dili kini pagdayagnos'.encode() in dashboard.data
+    assert 'Pinakaduol nga nakalista nga pasilidad sa panglawas'.encode() in dashboard.data
     assert b'Owayan Barangay Health Station' in dashboard.data
-    assert b'not a live distance or route calculation' in dashboard.data
+    assert 'dili kini aktuwal nga sukod'.encode() in dashboard.data
+    assert b'lang="ceb"' in dashboard.data
+    assert 'Bag-ong Pagtan-aw sa Panglawas'.encode() in dashboard.data
+    assert 'Gawas'.encode() in dashboard.data
 
 
 def test_location_referral_prefers_exact_barangay_and_falls_back_to_local_health_office():
@@ -586,6 +605,8 @@ def test_residents_cannot_see_each_others_assessment_records():
         'age': '30', 'fever': 'on', 'cough': 'on', 'bisaya_symptoms': '',
     }, follow_redirects=True)
     assert assess_response.status_code == 200
+    assert b'lang="ceb"' in assess_response.data
+    assert 'Giproseso ang imong pagtimbang'.encode() in assess_response.data
 
     client_b = app.test_client()
     client_b.post('/register', data={
@@ -610,6 +631,21 @@ def test_residents_cannot_see_each_others_assessment_records():
     # A can still see their own record.
     records_a = client_a.get('/records')
     assert b'Resident A' in records_a.data
+    assert b'lang="ceb"' in records_a.data
+
+    assessments_a = client_a.get('/assessments')
+    assert b'Ubos' in assessments_a.data
+    connection = get_db_connection()
+    assessment_id = connection.execute(
+        'SELECT id FROM assessments WHERE username = ? ORDER BY id DESC LIMIT 1',
+        ('residenta',),
+    ).fetchone()['id']
+    connection.close()
+    detail_a = client_a.get(f'/assessments/{assessment_id}')
+    assert 'Hilanat'.encode() in detail_a.data
+    assert b'Ubos' in detail_a.data
+    referral_a = client_a.get(f'/referral/{assessment_id}')
+    assert 'Mga Detalye sa Pagpa-check'.encode() in referral_a.data
 
 
 def test_offline_assessments_sync_idempotently_and_reject_invalid_ids():

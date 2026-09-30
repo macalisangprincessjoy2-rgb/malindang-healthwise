@@ -13,6 +13,7 @@ import uuid
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session, send_file, abort, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from bisaya import BISAYA_TEXT, bisaya_text
 from community_health_concerns import COMMUNITY_HEALTH_CONCERNS
 from health_system import assess_patient, normalize_symptom_text
 from ml_module import MODEL_PATH, evaluate_model, predict_risk, retrain_model
@@ -29,6 +30,8 @@ from survey_questionnaire import (
 import rule_repository
 
 app = Flask(__name__)
+app.add_template_filter(bisaya_text, 'bisaya')
+app.jinja_env.globals['bisaya_texts'] = BISAYA_TEXT
 
 _secret_key = os.environ.get('SECRET_KEY')
 if not _secret_key:

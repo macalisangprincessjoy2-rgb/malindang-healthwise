@@ -109,7 +109,7 @@ const RULES = [
 function openOfflineDb() {
     return new Promise((resolve, reject) => {
         if (!('indexedDB' in window)) {
-            reject(new Error('This browser does not support offline storage.'));
+            reject(new Error('Dili mosuporta kining browser sa pagtipig kon walay internet.'));
             return;
         }
         const request = indexedDB.open(OFFLINE_DB, 1);
@@ -122,7 +122,7 @@ function openOfflineDb() {
             }
         };
         request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error || new Error('Could not open offline storage.'));
+        request.onerror = () => reject(request.error || new Error('Dili maablihan ang pagtipig kon walay internet.'));
     });
 }
 
@@ -161,7 +161,7 @@ async function getQueue() {
         return await new Promise((resolve, reject) => {
             const request = db.transaction(QUEUE_STORE, 'readonly').objectStore(QUEUE_STORE).getAll();
             request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error || new Error('Could not read offline assessments.'));
+            request.onerror = () => reject(request.error || new Error('Dili mabasa ang mga pagtimbang nga gitipigan dinhi.'));
         });
     } finally {
         db.close();
@@ -175,7 +175,7 @@ async function putQueueItem(item) {
             const transaction = db.transaction(QUEUE_STORE, 'readwrite');
             const request = transaction.objectStore(QUEUE_STORE).put(item);
             request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error || new Error('Could not save offline assessment.'));
+            request.onerror = () => reject(request.error || new Error('Dili matipigan ang pagtimbang dinhi.'));
         });
     } finally {
         db.close();
@@ -185,7 +185,7 @@ async function putQueueItem(item) {
 async function queueAssessment(form) {
     const account = currentOfflineAccount();
     if (!account) {
-        throw new Error('Sign in while online before saving offline assessments on this device.');
+        throw new Error('Sulod sa imong account samtang naa pay internet sa dili pa motipig og pagtimbang dinhi.');
     }
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
@@ -235,9 +235,9 @@ async function syncOfflineAssessments() {
     });
     if (!response.ok) {
         if (response.status === 401) {
-            throw new Error('Your session needs sign-in. Reconnect, sign in, and pending assessments will sync.');
+            throw new Error('Kinahanglan ka mosulod pag-usab sa imong account. Konektar sa internet ug sulod aron masumpay ang mga pagtimbang.');
         }
-        throw new Error(`Sync failed (HTTP ${response.status}). Your queued assessments are still saved on this device.`);
+        throw new Error(`Napakyas ang pagsumpay (HTTP ${response.status}). Naa gihapon dinhi sa device ang mga pagtimbang.`);
     }
 
     const result = await response.json();
@@ -251,8 +251,8 @@ async function syncOfflineAssessments() {
                 if (syncedIds.has(item.client_id)) store.delete(item.local_id);
             });
             transaction.oncomplete = resolve;
-            transaction.onerror = () => reject(transaction.error || new Error('Could not update the local sync queue.'));
-            transaction.onabort = () => reject(transaction.error || new Error('Local sync queue update was aborted.'));
+            transaction.onerror = () => reject(transaction.error || new Error('Dili ma-update ang lokal nga lista sa mga hulat isumpay.'));
+            transaction.onabort = () => reject(transaction.error || new Error('Naputol ang pag-update sa lokal nga lista sa mga hulat isumpay.'));
         });
     } finally {
         db.close();
@@ -315,6 +315,17 @@ function setStatus(message, state = 'info') {
     });
 }
 
+function toBisaya(value) {
+    const text = String(value ?? '');
+    const translated = window.BISAYA_TEXT?.[text];
+    if (translated) return translated;
+    const suffix = ' Barangay Health Station';
+    if (text.endsWith(suffix)) {
+        return `Istasyon sa Panglawas sa Barangay ${text.slice(0, -suffix.length)}`;
+    }
+    return text;
+}
+
 async function refreshQueueStatus() {
     try {
         const account = currentOfflineAccount();
@@ -327,11 +338,11 @@ async function refreshQueueStatus() {
             element.textContent = String(pending.length);
         });
         if (!navigator.onLine) {
-            setStatus(`Offline. ${pending.length} assessment(s) saved on this device and waiting to sync.`, 'offline');
+            setStatus(`Walay koneksiyon. Gitipigan dinhi sa device ang ${pending.length} ka pagtimbang ug naghulat nga masumpay.`, 'offline');
         } else if (pending.length) {
-            setStatus(`${pending.length} assessment(s) waiting to sync.`, 'pending');
+            setStatus(`${pending.length} ka pagtimbang ang naghulat nga masumpay.`, 'pending');
         } else {
-            setStatus('Online. No assessments are waiting to sync.', 'online');
+            setStatus('Naa sa internet. Walay pagtimbang nga naghulat nga masumpay.', 'online');
         }
     } catch (error) {
         setStatus(error.message, 'error');
@@ -341,7 +352,7 @@ async function refreshQueueStatus() {
 async function reportSyncFailure(error) {
     await refreshQueueStatus();
     if (error instanceof TypeError || !navigator.onLine) {
-        setStatus('Could not reach the server. Queued assessments remain on this device and will retry when the connection is available.', 'offline');
+        setStatus('Dili makakonektar sa server. Naa gihapon dinhi sa device ang mga pagtimbang ug mosulay pag-usab kon mobalik ang koneksiyon.', 'offline');
     } else {
         setStatus(error.message, 'error');
     }
@@ -351,20 +362,20 @@ function showOfflineAssessment(data) {
     const result = assessOffline(data);
     const resultPanel = document.querySelector('[data-offline-result]');
     if (!resultPanel) {
-        setStatus(`Saved offline. Preliminary rule-based risk: ${result.riskLevel}. ${result.referral}`, 'pending');
+        setStatus(`Gitipigan nga walay internet. Pasiunang risgo sumala sa mga lagda: ${toBisaya(result.riskLevel)}. ${toBisaya(result.referral)}`, 'pending');
         return;
     }
     resultPanel.replaceChildren();
     const title = document.createElement('h2');
-    title.textContent = 'Assessment saved on this device';
+    title.textContent = 'Gitipigan ang pagtimbang dinhi sa device';
     const summary = document.createElement('p');
-    summary.textContent = `Offline preliminary risk: ${result.riskLevel}. ${result.referral}`;
+    summary.textContent = `Pasiunang risgo nga walay internet: ${toBisaya(result.riskLevel)}. ${toBisaya(result.referral)}`;
     const details = document.createElement('p');
     details.textContent = result.findings.length
-        ? `Matched findings: ${result.findings.join(', ')}`
-        : 'No recognized symptoms were selected or entered.';
+        ? `Mga timailhan nga nakita: ${result.findings.map(toBisaya).join(', ')}`
+        : 'Walay nailhang timailhan nga gipili o gisulat.';
     const caution = document.createElement('p');
-    caution.textContent = 'This is a rule-only offline estimate, not a diagnosis. It has not yet been saved to your health record. The server will reassess it when synced. If symptoms are severe, seek urgent in-person care; do not wait for internet access.';
+    caution.textContent = 'Pasiunang banabana lamang kini base sa mga lagda, dili pagdayagnos. Wala pa kini ma-save sa imong rekord sa panglawas. Susihon pag-usab kini sa server kon masumpay na. Kon grabe ang mga timailhan, pangayo dayon og personal nga tabang; ayaw paghulat nga mobalik ang internet.';
     resultPanel.append(title, summary, details, caution);
     resultPanel.hidden = false;
 }
@@ -382,10 +393,10 @@ async function submitAssessment(form) {
                     headers: { 'X-Requested-With': 'fetch' },
                 });
                 if (response.status === 401 || response.redirected) {
-                    throw new Error('Your sign-in may have expired. Please sign in again; the assessment has not been submitted.');
+                    throw new Error('Mahimong na-expire na ang imong pagsulod. Sulod pag-usab; wala pa mapadala ang pagtimbang.');
                 }
                 if (!response.ok) {
-                    const message = `The server could not save this assessment (HTTP ${response.status}). Your form remains available; please try again.`;
+                    const message = `Dili matipigan sa server ang pagtimbang (HTTP ${response.status}). Ania gihapon ang imong gipuno; palihog sulayi pag-usab.`;
                     setStatus(message, 'error');
                     return;
                 }
@@ -395,7 +406,7 @@ async function submitAssessment(form) {
                 return;
             } catch (error) {
                 if (error instanceof TypeError || !navigator.onLine) {
-                    setStatus('Connection lost while submitting. Saving this assessment on the device for later sync.', 'offline');
+                    setStatus('Naputol ang koneksiyon samtang gipadala. Gitipigan dinhi sa device ang pagtimbang aron masumpay unya.', 'offline');
                 } else {
                     setStatus(error.message, 'error');
                     return;
@@ -411,7 +422,7 @@ async function submitAssessment(form) {
         await refreshQueueStatus();
         if (navigator.onLine) syncOfflineAssessments().then(refreshQueueStatus).catch(reportSyncFailure);
     } catch (error) {
-        setStatus(`Could not save assessment offline: ${error.message}`, 'error');
+        setStatus(`Dili matipigan ang pagtimbang nga walay internet: ${error.message}`, 'error');
     } finally {
         if (submitButton?.isConnected) submitButton.disabled = false;
     }
@@ -422,7 +433,7 @@ async function startOfflineSupport() {
         try {
             await navigator.serviceWorker.register('/service-worker.js');
         } catch (error) {
-            setStatus(`Offline page caching could not start: ${error.message}`, 'error');
+            setStatus(`Dili masugdan ang pagtipig sa panid alang sa paggamit nga walay internet: ${error.message}`, 'error');
         }
     }
 
@@ -436,7 +447,7 @@ async function startOfflineSupport() {
     });
 
     window.addEventListener('online', () => {
-        setStatus('Connection restored. Syncing saved assessments…', 'pending');
+        setStatus('Nibalik ang koneksiyon. Gisumpay ang mga gitipigan nga pagtimbang…', 'pending');
         syncOfflineAssessments().then(refreshQueueStatus).catch(reportSyncFailure);
     });
     window.addEventListener('offline', refreshQueueStatus);

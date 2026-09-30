@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ceb">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="refresh" content="2;url={{ url_for('assessment_detail', assessment_id=result['assessment_id']) }}">
-    <title>Processing Assessment</title>
+    <title>Giproseso ang Pagtan-aw</title>
     <style>
         * { box-sizing:border-box; }
         body { margin:0; min-height:100vh; padding:16px; display:grid; place-items:center; background:#f7fbf9; font-family:Arial,sans-serif; color:#203947; }
@@ -20,10 +20,10 @@
 <body>
     <main class="card">
         <img src="{{ url_for('static', filename='malindang-logo.svg') }}" alt="Mount Malindang">
-        <h1>Nag-process ang imong assessment...</h1>
-        <p class="muted">Palihug hulata samtang among gi-analyze ang imong sintomas ug impormasyon.</p>
-        <div class="loader" aria-label="Processing"></div>
-        <div class="steps"><div class="done">✓ Gi-analyze ang sintomas (NLP)</div><div class="done">✓ Gisusi ang expert-system rules</div><div class="done">✓ Gipadagan ang machine-learning model</div><div>○ Gihimo ang referral recommendation</div><div>○ Ipakita ang resulta</div></div>
+        <h1>Giproseso ang imong pagtimbang...</h1>
+        <p class="muted">Palihog hulata samtang susihon ang imong mga timailhan ug kasayuran.</p>
+        <div class="loader" aria-label="Nagproseso"></div>
+        <div class="steps"><div class="done">✓ Gisusi ang mga pulong nga gisulat</div><div class="done">✓ Gisusi ang mga lagda sa panglawas</div><div class="done">✓ Gidagan ang modelo sa makina</div><div>○ Gihimo ang rekomendasyon sa pagpa-check</div><div>○ Ipakita ang resulta</div></div>
         <p class="muted"><a href="{{ url_for('assessment_detail', assessment_id=result['assessment_id']) }}">Tan-awa dayon ang resulta</a></p>
     </main>
 </body>

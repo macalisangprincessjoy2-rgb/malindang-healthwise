@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ceb">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessment Result</title>
+    <title>Resulta sa Pagtan-aw</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -58,39 +58,39 @@
 </head>
 <body>
     <div class="container">
-        <img class="logo" src="{{ url_for('static', filename='malindang-logo.svg') }}" alt="Mount Malindang Preliminary Health Assessment and Healthcare Referral">
+        <img class="logo" src="{{ url_for('static', filename='malindang-logo.svg') }}" alt="Pasiunang pagtimbang sa panglawas ug pagpa-check sa Mount Malindang">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-            <h2>Buod sa Assessment</h2>
+            <h2>Sumaryo sa Pagtan-aw</h2>
             <div>
                 <span style="font-weight:bold; margin-right:12px;">{{ username }}</span>
-                <a href="/logout">Pag-logout</a>
+                <a href="/logout">Gawas</a>
             </div>
         </div>
-        <p><strong>Lebel sa Peligro:</strong> <span class="badge">{{ result["risk_level"] }}</span></p>
+        <p><strong>Lebel sa Risgo:</strong> <span class="badge">{{ result["risk_level"]|bisaya }}</span></p>
         {% if result["age"] %}
-        <p><strong>Edad sa Pasyente:</strong> {{ result["age"] }} ka tuig</p>
+        <p><strong>Edad:</strong> {{ result["age"] }} ka tuig</p>
         {% endif %}
-        <p><strong>Prayoridad:</strong> <span class="priority">{{ result["priority"] }}</span></p>
+        <p><strong>Unahon nga buhaton:</strong> <span class="priority">{{ result["priority"]|bisaya }}</span></p>
         {% if result.get("ml_risk_level") %}
-        <p><strong>Machine Learning risk prediction:</strong> {{ result["ml_risk_level"] }} ({{ result["ml_confidence"] }}% confidence)</p>
-        <p style="font-size:13px; color:#5f7373;">Supplementary model output only; the rule-based safety assessment and healthcare professional advice take priority.</p>
+        <p><strong>Tabang nga pagtagna sa modelo sa makina:</strong> {{ result["ml_risk_level"]|bisaya }} ({{ result["ml_confidence"] }}% kasiguroan)</p>
+        <p style="font-size:13px; color:#5f7373;">Dugang nga pagtagna lamang kini. Mas sundon ang pagtimbang sa mga lagda alang sa kaluwasan ug tambag sa propesyonal sa panglawas.</p>
         {% endif %}
-        <p><strong>Mga Simtoma nga na-ila:</strong></p>
+        <p><strong>Mga Timailhan nga Namatikdan:</strong></p>
         <ul>
             {% for symptom in result["symptoms"] %}
-                <li>{{ symptom }}</li>
+                <li>{{ symptom|bisaya }}</li>
             {% endfor %}
         </ul>
-        <p><strong>Rekomendasyon sa Referral:</strong> {{ result["referral"] }}</p>
+        <p><strong>Girekomendang Pagpa-check:</strong> {{ result["referral"]|bisaya }}</p>
         {% if result.get("referral_facility") %}
         <div style="margin-top:18px; padding:16px; border-left:4px solid #2a7f62; background:#eef8f3;">
-            <p style="margin:0 0 8px;"><strong>Lokasyon sa pasyente:</strong> {{ result["referral_facility"]["location"] }}</p>
-            <p style="margin:0 0 8px;"><strong>Duol nga unang kontakon:</strong> {{ result["referral_facility"]["first_contact"] }}</p>
-            <p style="margin:0;"><strong>Kung emergency:</strong> {{ result["referral_facility"]["hospital"] }}</p>
+            <p style="margin:0 0 8px;"><strong>Lokasyon:</strong> {{ result["referral_facility"]["location"] }}</p>
+            <p style="margin:0 0 8px;"><strong>Unang duolon:</strong> {{ result["referral_facility"]["first_contact"]|bisaya }}</p>
+            <p style="margin:0;"><strong>Kon emerhensiya:</strong> {{ result["referral_facility"]["hospital"]|bisaya }}</p>
         </div>
-        <p style="font-size:13px; color:#5f7373;">Palihog kumpirmaha ang bukas nga pasilidad ug sakto nga biyahe sa BHW o lokal nga health office. Kung lisod ang pagginhawa, sakit ang dughan, o grabe ang pagkahubas, pangayo dayon og emergency tabang.</p>
+        <p style="font-size:13px; color:#5f7373;">Palihog kumpirmaha sa BHW o lokal nga opisina sa panglawas kung bukas ang pasilidad ug unsay sakyan. Kon lisod ang pagginhawa, sakit ang dughan, o grabe ang pagkahubas, pangayo dayon og tabang sa emerhensiya.</p>
         {% endif %}
-        <p><a href="/dashboard">Balik sa dashboard</a></p>
+        <p><a href="/dashboard">Balik sa Panid Panguna</a></p>
     </div>
 </body>
 </html>

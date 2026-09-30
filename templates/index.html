@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ceb">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Mount Malindang</title>
+    <title>Panid Panguna | Mount Malindang</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <style>
         :root { --ink:#203947; --muted:#74837f; --line:#e5eee9; --green:#26a957; --mint:#effaf3; --blue:#eef7ff; --gold:#fff8e6; --purple:#f6f1ff; }
@@ -107,121 +107,122 @@
     <aside class="sidebar">
         <a class="brand" href="#overview"><img src="{{ url_for('static', filename='malindang-logo.svg') }}" alt="Mount Malindang"></a>
         <nav class="nav">
-            <div class="nav-title">MAIN</div>
-            <a class="active" href="#overview"><span class="nav-icon">⌂</span> Dashboard</a>
-            <div class="nav-title">ASSESSMENT</div>
-            <a href="#assessment"><span class="nav-icon">☷</span> New Assessment</a>
-            <a href="/assessments"><span class="nav-icon">▤</span> My Assessments</a>
-            <a href="/records"><span class="nav-icon">▣</span> Health Records</a>
-            <a href="{{ url_for('research_survey') }}"><span class="nav-icon">☑</span> Research Survey</a>
-            <a href="#community-concerns"><span class="nav-icon">♧</span> Primary Concerns</a>
-            <a href="#tips"><span class="nav-icon">＋</span> Health Education</a>
-            <div class="nav-title">ACCOUNT</div>
-            <a href="#profile"><span class="nav-icon">♙</span> Profile</a>
-            {% if session.get('role') == 'admin' %}<a href="/admin"><span class="nav-icon">⚙</span> Admin Monitoring</a>{% endif %}
-            <a href="/logout"><span class="nav-icon">⇥</span> Logout</a>
+            <div class="nav-title">PANGUNANG BAHIN</div>
+            <a class="active" href="#overview"><span class="nav-icon">⌂</span> Panid Panguna</a>
+            <div class="nav-title">PAGTAN-AW SA PANGLAWAS</div>
+            <a href="#assessment"><span class="nav-icon">☷</span> Bag-ong Pagtan-aw</a>
+            <a href="/assessments"><span class="nav-icon">▤</span> Akong mga Pagtan-aw</a>
+            <a href="/records"><span class="nav-icon">▣</span> Mga Rekord sa Panglawas</a>
+            <a href="{{ url_for('research_survey') }}"><span class="nav-icon">☑</span> Pangutana sa Panukiduki</a>
+            <a href="#community-concerns"><span class="nav-icon">♧</span> Pangunang mga Kabalaka sa Panglawas</a>
+            <a href="#tips"><span class="nav-icon">＋</span> Edukasyon sa Panglawas</a>
+            <div class="nav-title">AKONG KASAYURAN</div>
+            <a href="#profile"><span class="nav-icon">♙</span> Akong Profile</a>
+            {% if session.get('role') == 'admin' %}<a href="/admin"><span class="nav-icon">⚙</span> Pagmonitor sa Admin</a>{% endif %}
+            <a href="/logout"><span class="nav-icon">⇥</span> Gawas</a>
         </nav>
-        <div class="help"><strong>Need Help?</strong>If you are experiencing severe symptoms, please visit the nearest health facility immediately.<a class="emergency" href="#facilities">☎ Emergency Hotlines</a></div>
+        <div class="help"><strong>Kinahanglan ka ba og tabang?</strong>Kung grabe ang imong gibati, adto dayon sa pinakaduol nga pasilidad sa panglawas.<a class="emergency" href="#facilities">☎ Mga Numero sa Emerhensiya</a></div>
     </aside>
     <main class="main">
         <header class="topbar" id="overview">
-            <div><h1>Maayong adlaw, {{ session.get('full_name', username) }}! 👋</h1><p>I-assess nato ang imong kahimtang sa panglawas. Palihug sagdoti ang mga pangutana.</p></div>
-            <div class="location"><span style="font-size:22px;color:#20a957;">●</span><div><strong>Your Location</strong><span>{{ session.get('barangay', 'Barangay') }}, {{ session.get('municipality', 'Mount Malindang Highlands') }}</span></div><a class="change" href="/register">Change</a></div>
+            <div><h1>Maayong adlaw, {{ session.get('full_name', username) }}! 👋</h1><p>Tan-awon nato ang imong kahimtang sa panglawas. Palihog tubaga ang mga pangutana.</p></div>
+            <div class="location"><span style="font-size:22px;color:#20a957;">●</span><div><strong>Imong Lokasyon</strong><span>{{ session.get('barangay', 'Barangay') }}, {{ session.get('municipality', 'Kabukiran sa Mount Malindang') }}</span></div><a class="change" href="/register">Usbon</a></div>
         </header>
-        <p class="offline-status" data-offline-status role="status" aria-live="polite">Checking connection…</p>
+        <p class="offline-status" data-offline-status role="status" aria-live="polite">Gisusi ang koneksiyon…</p>
         <section class="offline-result" data-offline-result aria-live="polite" hidden></section>
         <section class="summary">
-            <div class="metric green"><div class="metric-icon">▣</div><div class="metric-value" id="total-assessments">{{ total_assessments }}</div><div class="metric-label">Assessments</div><small>This Month</small><a href="/assessments">View History →</a></div>
-            <div class="metric blue"><div class="metric-icon">✚</div><div class="metric-value" id="high-count">{{ high_count }}</div><div class="metric-label">Severe Risk</div><small>This Month</small><a href="#assessment">View Details →</a></div>
-            <div class="metric gold"><div class="metric-icon">▤</div><div class="metric-value">{{ guidelines|length }}</div><div class="metric-label">Health Tips</div><small>Articles Available</small><a href="#tips">Read Now →</a></div>
-            <div class="metric purple"><div class="metric-icon">▦</div><div class="metric-value">{{ facilities|length }}</div><div class="metric-label">Nearby Facilities</div><small>Configured Locations</small><a href="#facilities">View Map →</a></div>
+            <div class="metric green"><div class="metric-icon">▣</div><div class="metric-value" id="total-assessments">{{ total_assessments }}</div><div class="metric-label">Mga Pagtan-aw</div><small>Kinatibuk-ang ihap</small><a href="/assessments">Tan-awa ang Kasaysayan →</a></div>
+            <div class="metric blue"><div class="metric-icon">✚</div><div class="metric-value" id="high-count">{{ high_count }}</div><div class="metric-label">Grabe nga Risgo</div><small>Kinatibuk-ang ihap</small><a href="#assessment">Tan-awa ang Detalye →</a></div>
+            <div class="metric gold"><div class="metric-icon">▤</div><div class="metric-value">{{ guidelines|length }}</div><div class="metric-label">Mga Tambag sa Panglawas</div><small>Mga giya nga mabasa</small><a href="#tips">Basaha Karon →</a></div>
+            <div class="metric purple"><div class="metric-icon">▦</div><div class="metric-value">{{ facilities|length }}</div><div class="metric-label">Mga Pasilidad sa Duol</div><small>Mga lokasyon sa sistema</small><a href="#facilities">Tan-awa ang Mapa →</a></div>
         </section>
         <section class="panel referral-panel" aria-labelledby="nearby-referral-title">
-            <h2 id="nearby-referral-title">Nearest configured healthcare referral</h2>
+            <h2 id="nearby-referral-title">Pinakaduol nga nakalista nga pasilidad sa panglawas</h2>
             {% if nearby_referral %}
-            <p class="panel-subtitle">Suggested using your registered location: {{ nearby_referral.location or 'your municipality' }}</p>
+            <p class="panel-subtitle">Gisugyot base sa imong narehistrong lokasyon: {{ nearby_referral.location or 'imong munisipyo' }}</p>
             <div class="referral-card">
                 <div>
-                    <span class="referral-chip">{{ nearby_referral.facility.facility_type }}</span>
+                    <span class="referral-chip">{{ nearby_referral.facility.facility_type|bisaya }}</span>
                     <h3>{{ nearby_referral.facility.name }}</h3>
                     <p>{{ nearby_referral.facility.barangay or nearby_referral.facility.municipality }}</p>
-                    {% if nearby_referral.facility.description %}<p>{{ nearby_referral.facility.description }}</p>{% endif %}
+                    {% if nearby_referral.facility.description %}<p>{{ nearby_referral.facility.description|bisaya }}</p>{% endif %}
                     {% if nearby_referral.hospital %}
                     <div class="referral-hospital">
-                        <strong>Hospital-level referral</strong>
+                        <strong>Pagpa-check sa ospital</strong>
                         <p>{{ nearby_referral.hospital.name }}</p>
                         {% if nearby_referral.hospital.barangay %}<p>{{ nearby_referral.hospital.barangay }}, {{ nearby_referral.hospital.municipality }}</p>{% endif %}
                     </div>
                     {% endif %}
                 </div>
                 <div class="referral-actions">
-                    <a href="#facilities">View community map</a>
-                    {% if records %}<a href="{{ url_for('referral_detail', assessment_id=records[0].id) }}">Referral details</a>{% endif %}
+                    <a href="#facilities">Tan-awa ang mapa sa komunidad</a>
+                    {% if records %}<a href="{{ url_for('referral_detail', assessment_id=records[0].id) }}">Detalye sa pagpa-check</a>{% endif %}
                 </div>
             </div>
-            <p class="referral-caveat">This is a location-based suggestion from the configured facility list, not a live distance or route calculation. Confirm availability and transport with your BHW or local health office. For an emergency, seek urgent help immediately.</p>
+            <p class="referral-caveat">Gisugyot kini base sa lista sa mga pasilidad ug sa imong lokasyon; dili kini aktuwal nga sukod sa gilay-on o direksiyon. Pangutan-a ang imong BHW o opisina sa panglawas kung bukas ang pasilidad ug unsay sakyan. Kung emerhensiya, pangayo dayon og tabang.</p>
             {% else %}
-            <p class="result-text">No configured facility matches your registered municipality yet. Contact your barangay health worker or local health office for the nearest available service.</p>
+            <p class="result-text">Walay nakalistang pasilidad para sa imong narehistrong munisipyo. Pangutan-a ang imong barangay health worker o lokal nga opisina sa panglawas kon asa ang pinakaduol nga serbisyo.</p>
             {% endif %}
         </section>
         <section class="workspace">
             <section class="panel" id="assessment">
-                <h2>New Health Assessment</h2><p class="panel-subtitle">Ilawaran ang imong nararamdaman.</p>
-                <div class="step"><span class="step-number">1</span> Ilarawan ang imong sintomas (sa Bisaya)</div>
+                <h2>Bag-ong Pagtan-aw sa Panglawas</h2><p class="panel-subtitle">Isaysay ang imong gibati.</p>
+                <div class="step"><span class="step-number">1</span> Isaysay ang imong gibati (sa Binisaya)</div>
                 <form method="POST" action="/assess" class="assessment-form">
                     <input type="hidden" name="client_id" value="">
-                    <textarea name="bisaya_symptoms" id="bisaya_symptoms" maxlength="500" placeholder="Pananglitan: Sakit ang ulo, nilalagnat, ubo, sip-on, tugnaw ang lawas..."></textarea><span class="char-count" id="char-count">0/500</span>
-                    <div class="step"><span class="step-number">2</span> Dugang nga impormasyon</div>
+                    <textarea name="bisaya_symptoms" id="bisaya_symptoms" maxlength="500" placeholder="Pananglitan: Sakit ang ulo, hilanat, ubo, sip-on, tugnaw ang lawas..."></textarea><span class="char-count" id="char-count">0/500</span>
+                    <div class="step"><span class="step-number">2</span> Dugang nga kasayuran</div>
                     <div class="form-grid">
                         <div class="field"><label for="age">Edad</label><input id="age" type="number" name="age" min="0" max="120" placeholder="Pilia ang edad"></div>
-                        <div class="field"><label for="gender">Kasarian</label><select id="gender" name="gender"><option value="">Pilia ang kasarian</option><option>Babaye</option><option>Lalaki</option><option>Uban pa</option></select></div>
+                        <div class="field"><label for="gender">Sekso</label><select id="gender" name="gender"><option value="">Pilia ang sekso</option><option>Babaye</option><option>Lalaki</option><option>Uban pa</option></select></div>
                         {% for key, label in [('fever','Hilanat'),('cough','Ubo / Hubak'),('difficulty_breathing','Lisod ug ginhawa'),('chest_pain','Sakit sa dughan'),('diarrhea','Kalibanga'),('vomiting','Pagsuka'),('dehydration','Pagkahubas')] %}<div class="field"><label><input type="checkbox" name="{{ key }}"> {{ label }}</label></div>{% endfor %}
                     </div>
-                    <button class="submit" type="submit">♨ &nbsp; I-Submit ang Assessment</button><p class="privacy">▣ Ang imong impormasyon kay sigurado ug dili ipangapod.</p>
+                    <button class="submit" type="submit">♨ &nbsp; Ipadala ang Pagtan-aw</button><p class="privacy">▣ Luwas ang imong kasayuran ug dili kini ipaambit sa uban.</p>
                 </form>
             </section>
             <section class="panel" id="latest-result">
-                <div class="result-head"><h2>Previous Assessment Result</h2><a class="view-all" href="/assessments">View All ▣</a></div>
+                <div class="result-head"><h2>Resulta sa Miaging Pagtan-aw</h2><a class="view-all" href="/assessments">Tan-awa Tanan ▣</a></div>
                 {% if records %}{% set latest = records[0] %}
-                <div class="result-section"><strong>Detected Symptoms</strong><div class="tags">{% for symptom in (latest.symptom_text or '').split(',')[:5] %}<span class="tag">{{ symptom.strip() }}</span>{% endfor %}</div></div>
-                <div class="result-section"><strong>Risk Level</strong><div class="risk"><span class="risk-badge">{{ latest.risk_level }}</span><span class="result-text">{{ latest.referral_recommendation }}</span></div></div>
-                <div class="result-section"><strong>Recommendations</strong><p class="result-text">Palihug pagmonitor sa kahimtang ug pangayo og tambag sa health professional kung magpadayon ang mga simtoma.</p></div>
-                <div class="result-section"><strong>Referral Suggestion</strong><div class="referral"><div><div class="referral-name">{{ latest.barangay }} Barangay Health Station</div><div class="referral-distance">Duol nga unang kontak sa {{ latest.municipality }}</div></div><a class="map-link" href="{{ url_for('referral_detail', assessment_id=latest.id) if latest.id else '#facilities' }}">⌖ View on Map</a></div></div>
+                <div class="result-section"><strong>Mga Timailhan nga Namatikdan</strong><div class="tags">{% for symptom in (latest.symptom_text or '').split(',')[:5] %}<span class="tag">{{ symptom.strip()|bisaya }}</span>{% endfor %}</div></div>
+                <div class="result-section"><strong>Lebel sa Risgo</strong><div class="risk"><span class="risk-badge">{{ latest.risk_level|bisaya }}</span><span class="result-text">{{ latest.referral_recommendation|bisaya }}</span></div></div>
+                <div class="result-section"><strong>Mga Girekomenda</strong><p class="result-text">Palihog bantayi ang imong kahimtang ug pangayo og tambag sa propesyonal sa panglawas kon magpadayon ang mga timailhan.</p></div>
+                <div class="result-section"><strong>Gisugyot nga Pasilidad</strong><div class="referral"><div><div class="referral-name">{{ (latest.barangay ~ ' Barangay Health Station')|bisaya }}</div><div class="referral-distance">Duol nga unang duolon sa {{ latest.municipality }}</div></div><a class="map-link" href="{{ url_for('referral_detail', assessment_id=latest.id) if latest.id else '#facilities' }}">⌖ Tan-awa sa Mapa</a></div></div>
                 {% else %}<p class="result-text">Wala pay assessment. Pagsugod og bag-ong assessment sa wala.</p>{% endif %}
             </section>
         </section>
         <section class="panel concerns-panel" id="community-concerns">
-            <h2>Community-Reported Primary Health Concerns</h2>
-            <p class="panel-subtitle">Bisaya descriptions, reported concerns, and communities supplied for the project.</p>
+            <h2>Mga Pangunang Kabalaka sa Panglawas nga Gireport sa Komunidad</h2>
+            <p class="panel-subtitle">Mga paghulagway sa Binisaya, kabalaka sa panglawas, ug mga komunidad nga gilakip sa proyekto.</p>
             <div class="concerns-table-wrap">
                 <table class="concerns-table">
-                    <thead><tr><th>Bisaya description</th><th>English description</th><th>Reported concern</th><th>Communities</th></tr></thead>
+                    <thead><tr><th>Paghulagway sa Binisaya</th><th>Kahulogan</th><th>Kabalaka sa panglawas</th><th>Mga komunidad</th></tr></thead>
                     <tbody>
                     {% for concern in community_health_concerns %}
                         <tr>
                             <td>{{ concern.bisaya }}</td>
-                            <td>{{ concern.description }}</td>
-                            <td>{{ concern.reported_concern }}</td>
+                            <td>{{ concern.description|bisaya }}</td>
+                            <td>{{ concern.reported_concern|bisaya }}</td>
                             <td>{{ concern.locations|join(', ') }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <p class="concerns-note">These entries are community-reported reference information only. They are not diagnoses and do not change automated assessment or risk scores. Seek advice from a licensed health professional.</p>
+            <p class="concerns-note">Mga kasayuran lamang kini nga gireport sa komunidad. Dili kini pagdayagnos ug dili makausab sa awtomatikong pagtimbang o marka sa risgo. Pangayo og tambag sa lisensiyadong propesyonal sa panglawas.</p>
         </section>
-        <section class="panel map-panel" id="facilities"><h2>Nearby Facilities and Coverage Map</h2><p class="panel-subtitle">Don Victoriano ug Tangub City, ilabina ang Owayan ug Hoyohoy.</p><div id="community-map"></div></section>
-        <section class="bottom" id="tips"><div><h3>Important Reminder</h3><p>Kinahanglan nga dili mopuli sa personal nga konsultasyon sa doktor. Kung ang imong sintomas magpadayon o mograbe, palihug adto sa pinaka-kaduol nga health facility.</p></div><img src="{{ url_for('static', filename='health-welcome.svg') }}" alt="Healthcare reminder"></section>
+        <section class="panel map-panel" id="facilities"><h2>Mapa sa mga Pasilidad ug Serbisyo sa Duol</h2><p class="panel-subtitle">Don Victoriano ug Dakbayan sa Tangub, ilabina ang Owayan ug Hoyohoy.</p><div id="community-map"></div></section>
+        <section class="bottom" id="tips"><div><h3>Hinungdanong Pahinumdom</h3><p>Dili mopuli ang sistema sa personal nga konsultasyon sa doktor. Kon magpadayon o mosamot ang imong gibati, adto sa pinakaduol nga pasilidad sa panglawas.</p></div><img src="{{ url_for('static', filename='health-welcome.svg') }}" alt="Pahinumdom bahin sa panglawas"></section>
     </main>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>window.BISAYA_TEXT = {{ bisaya_texts|tojson }};</script>
 <script src="{{ url_for('static', filename='offline.js') }}"></script>
 <script>
     const symptomBox = document.getElementById('bisaya_symptoms');
     const charCount = document.getElementById('char-count');
     symptomBox.addEventListener('input', () => { charCount.textContent = symptomBox.value.length + '/500'; });
     const map = L.map('community-map').setView([8.20, 123.70], 11);
-    if (map) { L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'&copy; OpenStreetMap contributors'}).addTo(map); L.marker([8.30,123.62]).addTo(map).bindPopup('<strong>Don Victoriano</strong><br>Mount Malindang coverage'); L.marker([8.11,123.70]).addTo(map).bindPopup('<strong>Owayan</strong><br>Tangub City'); L.marker([8.16,123.76]).addTo(map).bindPopup('<strong>Hoyohoy</strong><br>Tangub City'); }
+    if (map) { L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'&copy; OpenStreetMap contributors'}).addTo(map); L.marker([8.30,123.62]).addTo(map).bindPopup('<strong>Don Victoriano</strong><br>Serbisyo sa kabukiran sa Mount Malindang'); L.marker([8.11,123.70]).addTo(map).bindPopup('<strong>Owayan</strong><br>Dakbayan sa Tangub'); L.marker([8.16,123.76]).addTo(map).bindPopup('<strong>Hoyohoy</strong><br>Dakbayan sa Tangub'); }
     function refreshDashboard() { fetch('/api/dashboard').then(response => response.ok ? response.json() : null).then(data => { if (!data) return; document.getElementById('total-assessments').textContent = data.total_assessments; document.getElementById('high-count').textContent = data.high_count; }).catch(() => {}); }
     refreshDashboard(); window.setInterval(refreshDashboard, 15000);
 </script>

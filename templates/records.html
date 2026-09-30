@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ceb">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Records</title>
+    <title>Mga Rekord sa Panglawas</title>
     <style>
         :root {
             --green-900: #1f4d4d;
@@ -105,10 +105,10 @@
 <body>
     <div class="page">
         <div class="topbar">
-            <h2>Health Records</h2>
+            <h2>Mga Rekord sa Panglawas</h2>
             <div class="nav">
-                <a href="/dashboard">Dashboard</a>
-                <a href="/logout">Logout</a>
+                <a href="/dashboard">Panid Panguna</a>
+                <a href="/logout">Gawas</a>
             </div>
         </div>
 
@@ -116,14 +116,14 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Patient</th>
-                        <th>Age</th>
-                        <th>Municipality</th>
+                        <th>Pasyente</th>
+                        <th>Edad</th>
+                        <th>Munisipyo</th>
                         <th>Barangay</th>
-                        <th>Symptoms</th>
-                        <th>Risk</th>
-                        <th>Referral</th>
-                        <th>Priority</th>
+                        <th>Mga Timailhan</th>
+                        <th>Risgo</th>
+                        <th>Pagpa-check</th>
+                        <th>Unahon</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,14 +133,14 @@
                         <td>{{ record.age }}</td>
                         <td>{{ record.municipality }}</td>
                         <td>{{ record.barangay }}</td>
-                        <td>{{ record.symptom_text }}</td>
-                        <td><span class="badge">{{ record.risk_level }}</span></td>
-                        <td>{{ record.referral_recommendation }}</td>
-                        <td>{{ record.priority }}</td>
+                        <td>{% for symptom in (record.symptom_text or '').split(',') %}{{ symptom.strip()|bisaya }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+                        <td><span class="badge">{{ record.risk_level|bisaya }}</span></td>
+                        <td>{{ record.referral_recommendation|bisaya }}</td>
+                        <td>{{ record.priority|bisaya }}</td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="8" class="empty">No records available.</td>
+                        <td colspan="8" class="empty">Walay rekord nga makita.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
