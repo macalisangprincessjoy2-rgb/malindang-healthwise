@@ -788,7 +788,7 @@ def research_survey():
         csrf_token, form_data.get('csrf_token', '')
     ):
         return render_questionnaire(
-            'This form expired or could not be verified. Please review it and submit again.',
+            'Ni-expire na o wala ma-verify kining porma. Palihog susiha pag-usab ang imong mga tubag ug isumiter pag-usab.',
             form_data,
         ), 400
 
@@ -800,24 +800,24 @@ def research_survey():
     allowed_types = {value for value, _ in RESPONDENT_TYPES}
 
     if respondent_type not in allowed_types:
-        return render_questionnaire('Please select a respondent type.', form_data), 400
+        return render_questionnaire('Palihog pilia ang matang sa motubag.', form_data), 400
     if not barangay or len(barangay) > 150:
-        return render_questionnaire('Please enter a barangay or location (up to 150 characters).', form_data), 400
+        return render_questionnaire('Isulod ang barangay o dapit (kutob sa 150 ka karakter).', form_data), 400
     if sex not in SEX_OPTIONS:
-        return render_questionnaire('Please select Male or Female, as in the questionnaire.', form_data), 400
+        return render_questionnaire('Palihog pilia ang lalaki o babaye.', form_data), 400
     if age_text:
         try:
             age = int(age_text)
         except ValueError:
-            return render_questionnaire('Enter a valid age from 0 to 120.', form_data), 400
+            return render_questionnaire('Isulod ang hustong edad gikan sa 0 hangtod 120.', form_data), 400
         if age < 0 or age > 120:
-            return render_questionnaire('Enter a valid age from 0 to 120.', form_data), 400
+            return render_questionnaire('Isulod ang hustong edad gikan sa 0 hangtod 120.', form_data), 400
     else:
         age = None
     if len(comments) > 2000:
-        return render_questionnaire('Comments must be 2,000 characters or fewer.', form_data), 400
+        return render_questionnaire('Dili molapas sa 2,000 ka karakter ang mga komento.', form_data), 400
     if form_data.get('consent') != 'yes':
-        return render_questionnaire('Please confirm voluntary consent before submitting.', form_data), 400
+        return render_questionnaire('Palihog kumpirmaha nga boluntaryo ang imong pag-apil sa dili pa isumiter ang mga tubag.', form_data), 400
 
     ratings = {}
     allowed_ratings = {str(value) for value, _, _ in SCALE}
@@ -825,7 +825,7 @@ def research_survey():
         value = form_data.get(f'answer_{code}', '')
         if value not in allowed_ratings:
             return render_questionnaire(
-                'Please answer every statement using one rating from 1 to 5.',
+                'Tubaga ang matag pahayag pinaagi sa pagpili og usa ka marka gikan sa 1 hangtod 5.',
                 form_data,
             ), 400
         ratings[code] = int(value)

@@ -154,8 +154,10 @@ def test_research_questionnaire_requires_consent_and_all_ratings():
 
     survey_page = client.get('/survey')
     assert survey_page.status_code == 200
-    assert b'Research Questionnaire' in survey_page.data
-    assert b'Healthcare Professional' in survey_page.data
+    assert b'Pangutana sa Panukiduki' in survey_page.data
+    assert b'Propesyonal sa Panglawas' in survey_page.data
+    assert b'Sayon gamiton ug sundon ang mga lakang niini nga sistema.' in survey_page.data
+    assert b'Isumiter ang mga Tubag' in survey_page.data
     assert b'answer_U1' in survey_page.data
     assert b'answer_C8' in survey_page.data
 
@@ -163,13 +165,13 @@ def test_research_questionnaire_requires_consent_and_all_ratings():
     missing_consent.pop('consent')
     rejected = client.post('/survey', data=missing_consent)
     assert rejected.status_code == 400
-    assert b'voluntary consent' in rejected.data
+    assert b'boluntaryo' in rejected.data.lower()
 
     missing_answer = _valid_questionnaire_payload(client)
     missing_answer.pop('answer_A4')
     rejected = client.post('/survey', data=missing_answer)
     assert rejected.status_code == 400
-    assert b'answer every statement' in rejected.data
+    assert b'Tubaga ang matag pahayag' in rejected.data
 
     connection = get_db_connection()
     assert connection.execute('SELECT COUNT(*) FROM questionnaire_responses').fetchone()[0] == 0
@@ -189,7 +191,7 @@ def test_consented_questionnaire_submission_is_saved_for_admin_export():
     response = client.post('/survey', data=payload)
 
     assert response.status_code == 200
-    assert b'Thank you for participating' in response.data
+    assert b'Salamat sa imong pag-apil' in response.data
 
     connection = get_db_connection()
     submission = connection.execute(
@@ -387,8 +389,8 @@ def test_admin_can_view_submitted_questionnaire_answers():
     assert response_page.status_code == 200
     assert b'Submitted Questionnaires' in response_page.data
     assert b'Helpful and clear.' in response_page.data
-    assert b'The system is easy to navigate and use.' in response_page.data
-    assert b'5 / 5' in response_page.data
+    assert 'Sayon gamiton ug sundon ang mga lakang niini nga sistema.'.encode() in response_page.data
+    assert '5 / 5'.encode() in response_page.data
 
 
 def test_admin_is_limited_to_research_survey_monitoring():

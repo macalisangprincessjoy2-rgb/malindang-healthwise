@@ -65,9 +65,11 @@ consent, records respondent type, barangay/location, sex, optional age, all 24
 Likert ratings, and optional comments. It does not request a name or account
 identifier. Only real submitted responses count toward the 386-person target;
 the application does not generate respondents. An administrator can review
-group totals and section means and download the raw CSV from the admin
-dashboard. Follow institutional ethics approval, consent, data access, and
-retention requirements before collecting or analyzing responses.
+group totals and section means and download responses from the admin dashboard.
+The respondent-facing questionnaire, prompts, ratings, consent text, and
+validation messages are presented in Cebuano (Binisaya). Follow institutional
+ethics approval, consent, data access, and retention requirements before
+collecting or analyzing responses.
 
 ## Run locally
 

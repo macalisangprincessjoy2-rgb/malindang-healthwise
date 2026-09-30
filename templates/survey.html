@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ceb">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research Questionnaire | Mount Malindang</title>
+    <title>Pangutana sa Panukiduki | Mount Malindang</title>
     <style>
         * { box-sizing: border-box; }
         body { margin:0; padding:20px; background:#f3f8f5; color:#203947; font-family:Arial,sans-serif; }
@@ -59,61 +59,61 @@
 <body>
 <main class="page">
     <header class="header">
-        <h1>Research Questionnaire</h1>
-        <p><strong>Mt. Malindang Highlands Web-Based Expert System with Integrated Decision Support for Preliminary Health Assessment and Healthcare Referral</strong></p>
-        <p class="muted">Respondents: Residents, Barangay Health Workers (BHWs), and Healthcare Professionals</p>
-        <nav class="top-links"><a href="{{ url_for('login') }}">Login</a><a href="{{ url_for('register') }}">Register</a></nav>
+        <h1>Pangutana sa Panukiduki</h1>
+        <p><strong>Sistema sa Eksperto nga Gamiton sa Web sa Kabukiran sa Mt. Malindang alang sa Pasiunang Pagtimbang sa Panglawas ug Pagtudlo sa Angay nga Pasilidad</strong></p>
+        <p class="muted">Mga motubag: mga residente, mga Trabahante sa Panglawas sa Barangay (BHW), ug mga propesyonal sa panglawas</p>
+        <nav class="top-links"><a href="{{ url_for('login') }}">Sulod</a><a href="{{ url_for('register') }}">Paghimo og account</a></nav>
     </header>
     {% if submitted %}
     <section class="panel success" role="status">
-        <h2>Thank you for participating!</h2>
-        <p>Your questionnaire response has been recorded. Participation is voluntary. You may now close this page.</p>
-        <a class="button" href="{{ url_for('login') }}">Return to the system</a>
+        <h2>Salamat sa imong pag-apil!</h2>
+        <p>Narekord na ang imong mga tubag. Boluntaryo ang pag-apil. Mahimo na nimong isira kining panid.</p>
+        <a class="button" href="{{ url_for('login') }}">Balik sa sistema</a>
     </section>
     {% else %}
     <section class="panel">
-        <h2>Dear Respondent</h2>
-        <p>You are invited to take part in this study, which aims to evaluate a web-based expert system designed to provide preliminary health assessment and healthcare referral for residents of Don Victoriano Chiongbian and the adjacent highland barangays of Tangub City, Misamis Occidental. Your participation is voluntary. Your responses will be treated confidentially and used only for academic purposes. Please answer based on your actual experience using the system. Please submit only one response.</p>
-        <p class="warning"><strong>Privacy:</strong> This questionnaire does not ask for your name or account details. It records respondent type, barangay/location, sex, optional age, your ratings, and optional comments. The research administrator can access submitted responses. Please do not include names or other identifying details in comments.</p>
+        <h2>Minahal nga motubag</h2>
+        <p>Gidapit ka sa pag-apil niining pagtuon. Tumong niini nga susihon ang sistema sa eksperto nga gigamit sa web, nga motabang sa pasiunang pagtimbang sa kahimtang sa panglawas ug pagtudlo sa angay nga pasilidad panglawas alang sa mga residente sa Don Victoriano Chiongbian ug sa kasikbit nga kabarangayan sa kabukiran sa Tangub City, Misamis Occidental. Boluntaryo ang imong pag-apil. Sekreto nga tipigan ang imong mga tubag ug gamiton lamang alang sa panukiduki sa eskwelahan. Tubaga kini base sa tinuod nimong kasinatian sa paggamit sa sistema. Usa lamang ka tubag ang isumiter.</p>
+        <p class="warning"><strong>Pagpanalipod sa pribasiya:</strong> Dili mangayo kining pangutana sa imong ngalan o detalye sa account. Irekord lamang ang matang sa motubag, barangay o dapit, sekso, edad kon gusto nimong ihatag, imong mga marka, ug opsyonal nga mga komento. Makita sa tigdumala sa panukiduki ang mga tubag nga gisumiter. Ayaw pagbutang og ngalan o ubang detalye nga makaila kanimo sa mga komento.</p>
         {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
     </section>
     <form method="post" action="{{ url_for('research_survey') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <section class="panel">
-            <h2>Part I. Respondent Profile</h2>
+            <h2>Bahin I. Impormasyon sa Motubag</h2>
             <div class="profile-grid">
                 <div class="field">
-                    <label for="respondent_type">Respondent Type</label>
+                    <label for="respondent_type">Matang sa motubag</label>
                     <select id="respondent_type" name="respondent_type" required>
-                        <option value="">Select respondent type</option>
+                        <option value="">Pilia ang matang sa motubag</option>
                         {% for value, label in respondent_types %}
                         <option value="{{ value }}" {% if form_data.get('respondent_type') == value %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="field">
-                    <label for="barangay">Barangay / Location</label>
-                    <input id="barangay" name="barangay" type="text" maxlength="150" required value="{{ form_data.get('barangay', '') }}" placeholder="Enter barangay or community">
+                    <label for="barangay">Barangay / Dapit</label>
+                    <input id="barangay" name="barangay" type="text" maxlength="150" required value="{{ form_data.get('barangay', '') }}" placeholder="Isulod ang barangay o komunidad">
                 </div>
                 <div class="field">
-                    <label for="sex">Sex</label>
+                    <label for="sex">Sekso</label>
                     <select id="sex" name="sex" required>
-                        <option value="">Select</option>
+                        <option value="">Pilia</option>
                         {% for option in sex_options %}
-                        <option value="{{ option }}" {% if form_data.get('sex') == option %}selected{% endif %}>{{ option }}</option>
+                        <option value="{{ option }}" {% if form_data.get('sex') == option %}selected{% endif %}>{% if option == 'Male' %}Lalaki{% else %}Babaye{% endif %}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="field">
-                    <label for="age">Age (optional)</label>
+                    <label for="age">Edad (kon gusto nimong ihatag)</label>
                     <input id="age" name="age" type="number" min="0" max="120" value="{{ form_data.get('age', '') }}" inputmode="numeric">
                 </div>
             </div>
         </section>
         <section class="panel">
-            <h2>Part II. System Evaluation</h2>
-            <p class="muted">Please rate each statement based on your experience using the system. Select one response for every statement.</p>
-            <p class="muted"><strong>5</strong> Strongly Agree / Highly Acceptable · <strong>4</strong> Agree / Acceptable · <strong>3</strong> Neutral / Moderately Acceptable · <strong>2</strong> Disagree / Less Acceptable · <strong>1</strong> Strongly Disagree / Not Acceptable</p>
+            <h2>Bahin II. Pagtimbang sa Sistema</h2>
+            <p class="muted">Hatagi og marka ang matag pahayag base sa imong kasinatian sa paggamit sa sistema. Pagpili og usa ka tubag sa matag pahayag.</p>
+            <p class="muted"><strong>5</strong> Hugot nga mouyon / Labing madawat · <strong>4</strong> Mouyon / Madawat · <strong>3</strong> Walay dapig / Medyo madawat · <strong>2</strong> Dili mouyon / Dili kaayo madawat · <strong>1</strong> Hugot nga dili mouyon / Dili madawat</p>
             {% for section in question_sections %}
             <div class="question-section">
                 <h2>{{ section.title }}</h2>
@@ -134,14 +134,14 @@
             {% endfor %}
         </section>
         <section class="panel">
-            <h2>Part III. Comments and Suggestions (Optional)</h2>
-            <label class="field-label" for="comments">What suggestions do you have to help improve the system?</label>
-            <textarea id="comments" name="comments" maxlength="2000" placeholder="Your suggestions (do not include names or identifying information)">{{ form_data.get('comments', '') }}</textarea>
+            <h2>Bahin III. Mga Komento ug Sugyot (Opsyonal)</h2>
+            <label class="field-label" for="comments">Unsa nga mga sugyot ang imong ikahatag aron mapaayo ang sistema?</label>
+            <textarea id="comments" name="comments" maxlength="2000" placeholder="Isulat dinhi ang imong mga sugyot. Ayaw pagbutang og ngalan o detalye nga makaila kanimo.">{{ form_data.get('comments', '') }}</textarea>
             <label class="consent">
                 <input type="checkbox" name="consent" value="yes" required {% if form_data.get('consent') == 'yes' %}checked{% endif %}>
-                <span>I have read the study information above, understand that participation is voluntary, and agree to submit my responses for academic research purposes.</span>
+                <span>Nabasa ug nasabtan nako ang impormasyon bahin sa pagtuon. Nasabtan nako nga boluntaryo ang pag-apil, ug mouyon ko nga isumiter ang akong mga tubag alang sa panukiduki sa eskwelahan.</span>
             </label>
-            <button class="submit" type="submit">Submit Questionnaire</button>
+            <button class="submit" type="submit">Isumiter ang mga Tubag</button>
         </section>
     </form>
     {% endif %}
